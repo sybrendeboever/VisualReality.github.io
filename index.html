@@ -14,9 +14,10 @@
         * VisualReality *
     </p>
     <p style="font-weight:bold;text-align:center;font-size:22px;">
-        The visualization presents high-dimentional data by combining heatmaps for the employment of different energy sources per country over time. 
+        The visualization presents high-dimensional data by combining heatmaps for the employment of different energy sources per country over time. 
         The graphic was made in Vega by combining the 9 interactive heatmaps into a single plot.
-        By hovering over the plot, additional information will appear.
+        By hovering over the plot, additional information will appear. 
+        You can also select a specific country or continent up front below the plot.
     </p>
     <hr>
     
@@ -29,6 +30,39 @@
         "padding": 0,
 
         "signals":[
+            { 
+            "name": "Country",
+            "bind": {"input": "select", "options": [null, "Algeria", "Angola", "Argentina", 
+        "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", 
+        "Belarus", "Belgium", "Bolivia", "Brazil", "Brunei", "Bulgaria", 
+        "Canada", "Chad", "Chile", "China", "Colombia", "Congo", "Costa Rica", 
+        "Croatia", "Cuba", "Cyprus", "Czechia", "Democratic Republic of Congo", 
+        "Denmark", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", 
+        "Estonia", "Ethiopia", "Finland", "France", "Gabon", "Germany", 
+        "Greece", "Guatemala", "Honduras", "Hong Kong", "Hungary", "Iceland", 
+        "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", 
+        "Japan", "Jordan", "Kazakhstan", "Kenya", "Kuwait", "Latvia", 
+        "Libya", "Lithuania", "Luxembourg", "Madagascar", "Malaysia", 
+        "Mexico", "Mongolia", "Morocco", "Mozambique", "Netherlands", 
+        "New Caledonia", "New Zealand", "Nicaragua", "Nigeria", "North Macedonia", 
+        "Norway", "Oman", "Pakistan", "Papua New Guinea", "Peru", "Philippines", 
+        "Poland", "Portugal", "Qatar", "Romania", "Russia", "Saudi Arabia", 
+        "Serbia", "Singapore", "Slovakia", "Slovenia", "South Africa", 
+        "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", 
+        "Sweden", "Switzerland", "Syria", "Taiwan", "Thailand", "Trinidad and Tobago", 
+        "Tunisia", "Turkey", "Turkmenistan", "Ukraine", "United Arab Emirates", 
+        "United Kingdom", "United States", "Uruguay", "USSR", "Uzbekistan", 
+        "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+            ]},
+            "value": null
+            },
+            { 
+            "name": "Continent",
+            "bind": {"input": "select", "options": [null, "Africa", "Asia", "Europe", "North America", "Oceania", "South America"
+            ]},
+            "value": null
+            },
+
             { "description":"Any datapoint is activated",
             "name": "datapoint_is_activated", 
             "value": false,
@@ -43,7 +77,7 @@
                 }
             ]
             },
-            { "description": "Active datapoint",
+                { "description": "Active datapoint",
             "name": "activated_datapoint", "value": null,
             "on": [
                 {
@@ -282,9 +316,11 @@
                     },
                     "update": {
                     "fill": {"scale": "color_coal", "field": "coal_consumption"},
-                    "opacity": [{"test": "datapoint_is_activated && datum.country !== activated_datapoint.datum.country","value":0.25},{"value":1}],
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.25}],
                     "width": {"value": 6},
-                    "height": [{"test": "datapoint_is_activated && datum.country === activated_datapoint.datum.country","scale": "y_coal","band":1.5},{"scale": "y_coal", "band": 1.1}]
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
                     }
                 }
                 }
@@ -313,9 +349,11 @@
                     },
                     "update": {
                     "fill": {"scale": "color_gas", "field": "gas_consumption"},
-                    "opacity": [{"test": "datapoint_is_activated && datum.country !== activated_datapoint.datum.country","value":0.25},{"value":1}],
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.25}],
                     "width": {"value": 6},
-                    "height": [{"test": "datapoint_is_activated && datum.country === activated_datapoint.datum.country","scale": "y_gas","band":1.5},{"scale": "y_gas", "band": 1.1}]
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
                     }
                 }
                 }
@@ -344,9 +382,11 @@
                     },
                     "update": {
                     "fill": {"scale": "color_hydro", "field": "hydro_consumption"},
-                    "opacity": [{"test": "datapoint_is_activated && datum.country !== activated_datapoint.datum.country","value":0.25},{"value":1}],
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.25}],
                     "width": {"value": 6},
-                    "height": [{"test": "datapoint_is_activated && datum.country === activated_datapoint.datum.country","scale": "y_hydro","band":1.5},{"scale": "y_hydro", "band": 1.1}]
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
                     }
                 }
                 }
@@ -375,9 +415,11 @@
                     },
                     "update": {
                     "fill": {"scale": "color_biofuel", "field": "biofuel_consumption"},
-                    "opacity": [{"test": "datapoint_is_activated && datum.country !== activated_datapoint.datum.country","value":0.25},{"value":1}],
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.25}],
                     "width": {"value": 6},
-                    "height": [{"test": "datapoint_is_activated && datum.country === activated_datapoint.datum.country","scale": "y_biofuel","band":2},{"scale": "y_biofuel", "band": 1.1}]
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
                     }
                 }
                 }
@@ -406,9 +448,11 @@
                     },
                     "update": {
                     "fill": {"scale": "color_nuclear", "field": "nuclear_consumption"},
-                    "opacity": [{"test": "datapoint_is_activated && datum.country !== activated_datapoint.datum.country","value":0.25},{"value":1}],
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.25}],
                     "width": {"value": 6},
-                    "height": [{"test": "datapoint_is_activated && datum.country === activated_datapoint.datum.country","scale": "y_nuclear","band":1.5},{"scale": "y_nuclear", "band": 1.1}]
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
                     }
                 }
                 }
@@ -437,9 +481,11 @@
                     },
                     "update": {
                     "fill": {"scale": "color_oil", "field": "oil_consumption"},
-                    "opacity": [{"test": "datapoint_is_activated && datum.country !== activated_datapoint.datum.country","value":0.25},{"value":1}],
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.25}],
                     "width": {"value": 6},
-                    "height": [{"test": "datapoint_is_activated && datum.country === activated_datapoint.datum.country","scale": "y_oil","band":1.5},{"scale": "y_oil", "band": 1.1}]
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
                     }
                 }
                 }
@@ -468,9 +514,11 @@
                     },
                     "update": {
                     "fill": {"scale": "color_solar", "field": "solar_consumption"},
-                    "opacity": [{"test": "datapoint_is_activated && datum.country !== activated_datapoint.datum.country","value":0.25},{"value":1}],
-                    "width": {"value": 6},
-                    "height": [{"test": "datapoint_is_activated && datum.country === activated_datapoint.datum.country","scale": "y_solar","band":1.5},{"scale": "y_solar", "band": 1.1}]
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.25}],
+                    "width": {"value": 6.2},
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
                     }
                 }
                 }
@@ -499,9 +547,11 @@
                     },
                     "update": {
                     "fill": {"scale": "color_wind", "field": "wind_consumption"},
-                    "opacity": [{"test": "datapoint_is_activated && datum.country !== activated_datapoint.datum.country","value":0.25},{"value":1}],
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.25}],
                     "width": {"value": 6},
-                    "height": [{"test": "datapoint_is_activated && datum.country === activated_datapoint.datum.country","scale": "y_wind","band":1.5},{"scale": "y_wind", "band": 1.1}]
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]            
                     }
                 }
                 }
@@ -530,9 +580,11 @@
                     },
                     "update": {
                     "fill": {"scale": "color_renew", "field": "renew_consumption"},
-                    "opacity": [{"test": "datapoint_is_activated && datum.country !== activated_datapoint.datum.country","value":0.25},{"value":1}],
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.25}],
                     "width": {"value": 6},
-                    "height": [{"test": "datapoint_is_activated && datum.country === activated_datapoint.datum.country","scale": "y_renew","band":1.5},{"scale": "y_renew", "band": 1.1}]
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
                     }
                 }
                 }
