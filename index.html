@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Creating Vega Viz</title>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.9.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.0.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.2.1"></script>
+    <style>
+        .imageLarge{
+            z-index: 1;
+            position: absolute !important;
+            left: calc(50% - 450px);
+            top: 350px;
+            background: white;
+        }
+
+        .imageSmall {
+            z-index: 2;
+            position: absolute !important;
+            left: calc(50% - 148.5px);
+            top: 651px;
+            background: none;
+            width: 264px;
+            height: 301px;
+            overflow: hidden;
+        }
+    </style>
+  </head>
+  <body>
+    <p style="font-weight:bold;text-align:center;font-size:50px;">
+        Interactive Vega heatmaps
+    </p>
+    <p style="font-weight:bold;text-align:center;font-size:15px;">
+        * VisualReality *
+    </p>
+    <p style="font-weight:bold;text-align:center;font-size:22px;">
+        The high-dimensional data visualization was created in Vega and presents evolutions of 8 different energy sources over time for specific countries 
+        (heatmaps) as well as evolutions on a global scale (stacked area plot). The exterior of the plot presents the detailed country information for the energy sources, 
+        which shapes the world wide energy consumption represented in the middle. These two parts of the graphic were created separately in Vega, and were then combined 
+        in HTML. By hovering over the plot, additional information will appear, and specific countries or continents can be selected below the graph.
+    </p>
+    <hr>
+    
+    <div id="vis" class="imageLarge"></div>
+    <script type="text/javascript">
+      var yourViz = {
+        "$schema": "https://vega.github.io/schema/vega/v5.json",
+        "width": 300,
+        "height": 300,
+        "padding": 0,
+
+        "signals":[
+            { 
+            "name": "Country",
+            "bind": {"input": "select", "options": [null, "Algeria", "Angola", "Argentina", 
+        "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", 
+        "Belarus", "Belgium", "Bolivia", "Brazil", "Brunei", "Bulgaria", 
+        "Canada", "Chad", "Chile", "China", "Colombia", "Congo", "Costa Rica", 
+        "Croatia", "Cuba", "Cyprus", "Czechia", "Democratic Republic of Congo", 
+        "Denmark", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", 
+        "Estonia", "Ethiopia", "Finland", "France", "Gabon", "Germany", 
+        "Greece", "Guatemala", "Honduras", "Hong Kong", "Hungary", "Iceland", 
+        "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", 
+        "Japan", "Jordan", "Kazakhstan", "Kenya", "Kuwait", "Latvia", 
+        "Libya", "Lithuania", "Luxembourg", "Madagascar", "Malaysia", 
+        "Mexico", "Mongolia", "Morocco", "Mozambique", "Netherlands", 
+        "New Caledonia", "New Zealand", "Nicaragua", "Nigeria", "North Macedonia", 
+        "Norway", "Oman", "Pakistan", "Papua New Guinea", "Peru", "Philippines", 
+        "Poland", "Portugal", "Qatar", "Romania", "Russia", "Saudi Arabia", 
+        "Serbia", "Singapore", "Slovakia", "Slovenia", "South Africa", 
+        "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", 
+        "Sweden", "Switzerland", "Syria", "Taiwan", "Thailand", "Trinidad and Tobago", 
+        "Tunisia", "Turkey", "Turkmenistan", "Ukraine", "United Arab Emirates", 
+        "United Kingdom", "United States", "Uruguay", "USSR", "Uzbekistan", 
+        "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+            ]},
+            "value": null
+            },
+            { 
+            "name": "Continent",
+            "bind": {"input": "select", "options": [null, "Africa", "Asia", "Europe", "North America", "Oceania", "South America"
+            ]},
+            "value": null
+            },
+
+            { "description":"Any datapoint is activated",
+            "name": "datapoint_is_activated", 
+            "value": false,
+            "on":[
+                {
+                "events":"rect:mouseover",
+                "update": "true"
+                },
+                {
+                "events": "rect:mouseout",
+                "update": "false"
+                }
+            ]
+            },
+                { "description": "Active datapoint",
+            "name": "activated_datapoint", "value": null,
+            "on": [
+                {
+                "events": "rect:mouseover",
+                "update": "item()"
+                },
+                {
+                "events": "rect:mouseout",
+                "update": "null"
+                }
+            ]
+            }
+        ],
+
+        "data": [
+            {
+            "name": "data_coal",
+            "url": "https://raw.githubusercontent.com/sybrendeboever/Datavis_data/main/data2_coal_consumption.csv",
+            "format": {"type": "csv", "parse": {"country": "string", "year": "number","continent":"string"}}
+            },
+            {
+            "name": "data_gas",
+            "url": "https://raw.githubusercontent.com/sybrendeboever/Datavis_data/main/data2_gas_consumption.csv",
+            "format": {"type": "csv", "parse": {"country": "string", "year": "number","continent":"string"}}
+            },
+                {
+            "name": "data_hydro",
+            "url": "https://raw.githubusercontent.com/sybrendeboever/Datavis_data/main/data2_hydro_consumption.csv",
+            "format": {"type": "csv", "parse": {"country": "string", "year": "number","continent":"string"}}
+            },
+                {
+            "name": "data_biofuel",
+            "url": "https://raw.githubusercontent.com/sybrendeboever/Datavis_data/main/data2_biofuel_consumption.csv",
+            "format": {"type": "csv", "parse": {"country": "string", "year": "number","continent":"string"}}
+            },
+                {
+            "name": "data_nuclear",
+            "url": "https://raw.githubusercontent.com/sybrendeboever/Datavis_data/main/data2_nuclear_consumption.csv",
+            "format": {"type": "csv", "parse": {"country": "string", "year": "number","continent":"string"}}
+            },
+                {
+            "name": "data_oil",
+            "url": "https://raw.githubusercontent.com/sybrendeboever/Datavis_data/main/data2_oil_consumption.csv",
+            "format": {"type": "csv", "parse": {"country": "string", "year": "number","continent":"string"}}
+            },
+                {
+            "name": "data_solar",
+            "url": "https://raw.githubusercontent.com/sybrendeboever/Datavis_data/main/data2_solar_consumption.csv",
+            "format": {"type": "csv", "parse": {"country": "string", "year": "number","continent":"string"}}
+            },
+                {
+            "name": "data_wind",
+            "url": "https://raw.githubusercontent.com/sybrendeboever/Datavis_data/main/data2_wind_consumption.csv",
+            "format": {"type": "csv", "parse": {"country": "string", "year": "number","continent":"string"}}
+            },
+                {
+            "name": "data_renew",
+            "url": "https://raw.githubusercontent.com/sybrendeboever/Datavis_data/main/data2_renew_consumption.csv",
+            "format": {"type": "csv", "parse": {"country": "string", "year": "number","continent":"string"}}
+            }
+        ],
+
+
+
+        "scales": [
+            {
+            "name": "x",
+            "type": "band",
+            "domain": {"data": "data_coal", "field": "year","sort":true},
+            "range": "width"
+            },
+            {
+            "name": "y_coal",
+            "type": "band",
+            "domain": {"data": "data_coal", "field": "country"},
+            "range": "height"
+            },
+            {
+            "name": "y_gas",
+            "type": "band",
+            "domain": {"data": "data_gas", "field": "country"},
+            "range": "height"
+            },
+            {
+            "name": "y_hydro",
+            "type": "band",
+            "domain": {"data": "data_hydro", "field": "country"},
+            "range": "height"
+            },
+            {
+            "name": "y_biofuel",
+            "type": "band",
+            "domain": {"data": "data_biofuel", "field": "country"},
+            "range": "height"
+            },
+            {
+            "name": "y_nuclear",
+            "type": "band",
+            "domain": {"data": "data_nuclear", "field": "country"},
+            "range": "height"
+            },
+            {
+            "name": "y_oil",
+            "type": "band",
+            "domain": {"data": "data_oil", "field": "country"},
+            "range": "height"
+            },
+            {
+            "name": "y_solar",
+            "type": "band",
+            "domain": {"data": "data_solar", "field": "country"},
+            "range": "height"
+            },
+            {
+            "name": "y_wind",
+            "type": "band",
+            "domain": {"data": "data_wind", "field": "country"},
+            "range": "height"
+            },
+            {
+            "name": "y_renew",
+            "type": "band",
+            "domain": {"data": "data_renew", "field": "country"},
+            "range": "height"
+            },
+
+            {
+            "name": "color_coal",
+            "type": "linear",
+            "range": {"scheme": "Greys"},
+            "domain": {"data": "data_coal", "field": "coal_consumption"},
+            "zero": false, 
+            "nice": true
+            },
+            {
+            "name": "color_gas",
+            "type": "linear",
+            "range": {"scheme": "yelloworangebrown"},
+            "domain": {"data": "data_gas", "field": "gas_consumption"},
+            "zero": false, 
+            "nice": true
+            },
+            {
+            "name": "color_hydro",
+            "type": "linear",
+            "range": {"scheme": "lighttealblue"},
+            "domain": {"data": "data_hydro", "field": "hydro_consumption"},
+            "zero": false, 
+            "nice": true
+            },
+            {
+            "name": "color_biofuel",
+            "type": "linear",
+            "range": {"scheme": "Browns"},
+            "domain": {"data": "data_biofuel", "field": "biofuel_consumption"},
+            "zero": false, 
+            "nice": true
+            },
+            {
+            "name": "color_nuclear",
+            "type": "linear",
+            "range": {"scheme": "Reds"},
+            "domain": {"data": "data_nuclear", "field": "nuclear_consumption"},
+            "zero": false, 
+            "nice": true
+            },
+            {
+            "name": "color_oil",
+            "type": "linear",
+            "range": {"scheme": "bluepurple"},
+            "domain": {"data": "data_oil", "field": "oil_consumption"},
+            "zero": false, 
+            "nice": true
+            },
+            {
+            "name": "color_solar",
+            "type": "linear",
+            "range": {"scheme": "DarkGold"},
+            "domain": {"data": "data_solar", "field": "solar_consumption"},
+            "zero": false, 
+            "nice": true
+            },
+            {
+            "name": "color_wind",
+            "type": "linear",
+            "range": {"scheme": "greenblue"},
+            "domain": {"data": "data_wind", "field": "wind_consumption"},
+            "zero": false, 
+            "nice": true
+            },
+            {
+            "name": "color_renew",
+            "type": "linear",
+            "range": {"scheme": "Greens"},
+            "domain": {"data": "data_renew", "field": "renew_consumption"},
+            "zero": false, 
+            "nice": true
+            }       
+        ],
+
+
+
+        "layout":{"padding":0,"columns":3},
+
+        "marks": [
+
+            {
+            "type": "group",
+            "encode": {
+                "update": {
+                "width": {"value": 300},
+                "height": {"value": 300}
+                }
+            },
+            "marks":[
+                {
+                "type": "rect",
+                "from": {"data": "data_coal"},
+                "encode": {
+                    "enter": {
+                    "x": {"scale": "x", "field": "year"},
+                    "y": {"scale": "y_coal", "field": "country"},
+                    "tooltip": {
+                    "signal": "{title: 'Coal consumption','Country': datum.country, 'Continent': datum.continent, 'log-value': round(datum.coal_consumption*pow(10,2))/pow(10,2), 'Year': datum.year}"
+                    }
+                    },
+                    "update": {
+                    "fill": {"scale": "color_coal", "field": "coal_consumption"},
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.15}],
+                    "width": {"value": 6},
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
+                    }
+                }
+                }
+            ]
+            },
+
+            {
+            "type": "group",
+            "encode": {
+                "update": {
+                "width": {"value": 300},
+                "height": {"value": 300}
+                }
+            },
+            "marks":[
+                {
+                "type": "rect",
+                "from": {"data": "data_gas"},
+                "encode": {
+                    "enter": {
+                    "x": {"scale": "x", "field": "year"},
+                    "y": {"scale": "y_gas", "field": "country"},
+                    "tooltip": {
+                    "signal": "{title: 'Gas consumption','Country': datum.country, 'Continent': datum.continent, 'log-value': round(datum.gas_consumption*pow(10,2))/pow(10,2), 'Year': datum.year}"
+                    }
+                    },
+                    "update": {
+                    "fill": {"scale": "color_gas", "field": "gas_consumption"},
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.15}],
+                    "width": {"value": 6},
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
+                    }
+                }
+                }
+            ]
+            },
+
+            {
+            "type": "group",
+            "encode": {
+                "update": {
+                "width": {"value": 300},
+                "height": {"value": 300}
+                }
+            },
+            "marks":[
+                {
+                "type": "rect",
+                "from": {"data": "data_hydro"},
+                "encode": {
+                    "enter": {
+                    "x": {"scale": "x", "field": "year"},
+                    "y": {"scale": "y_hydro", "field": "country"},
+                    "tooltip": {
+                    "signal": "{title: 'Hydro consumption','Country': datum.country, 'Continent': datum.continent, 'log-value': round(datum.hydro_consumption*pow(10,2))/pow(10,2), 'Year': datum.year}"
+                    }
+                    },
+                    "update": {
+                    "fill": {"scale": "color_hydro", "field": "hydro_consumption"},
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.15}],
+                    "width": {"value": 6},
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
+                    }
+                }
+                }
+            ]
+            },
+
+            {
+            "type": "group",
+            "encode": {
+                "update": {
+                "width": {"value": 300},
+                "height": {"value": 300}
+                }
+            },
+            "marks":[
+                {
+                "type": "rect",
+                "from": {"data": "data_biofuel"},
+                "encode": {
+                    "enter": {
+                    "x": {"scale": "x", "field": "year"},
+                    "y": {"scale": "y_biofuel", "field": "country"},
+                    "tooltip": {
+                    "signal": "{title: 'Biofuel consumption','Country': datum.country, 'Continent': datum.continent, 'log-value': round(datum.biofuel_consumption*pow(10,2))/pow(10,2), 'Year': datum.year}"
+                    }
+                    },
+                    "update": {
+                    "fill": {"scale": "color_biofuel", "field": "biofuel_consumption"},
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.15}],
+                    "width": {"value": 6},
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
+                    }
+                }
+                }
+            ]
+            },
+
+            {
+              "type":"group",
+              "background":null
+            },
+
+            {
+            "type": "group",
+            "encode": {
+                "update": {
+                "width": {"value": 300},
+                "height": {"value": 300}
+                }
+            },
+            "marks":[
+                {
+                "type": "rect",
+                "from": {"data": "data_nuclear"},
+                "encode": {
+                    "enter": {
+                    "x": {"scale": "x", "field": "year"},
+                    "y": {"scale": "y_nuclear", "field": "country"},
+                    "tooltip": {
+                    "signal": "{title: 'Nuclear consumption','Country': datum.country, 'Continent': datum.continent, 'log-value': round(datum.nuclear_consumption*pow(10,2))/pow(10,2), 'Year': datum.year}"
+                    }
+                    },
+                    "update": {
+                    "fill": {"scale": "color_nuclear", "field": "nuclear_consumption"},
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.15}],
+                    "width": {"value": 6},
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
+                    }
+                }
+                }
+            ]
+            },
+
+            {
+            "type": "group",
+            "encode": {
+                "update": {
+                "width": {"value": 300},
+                "height": {"value": 300}
+                }
+            },
+            "marks":[
+                {
+                "type": "rect",
+                "from": {"data": "data_oil"},
+                "encode": {
+                    "enter": {
+                    "x": {"scale": "x", "field": "year"},
+                    "y": {"scale": "y_oil", "field": "country"},
+                    "tooltip": {
+                    "signal": "{title: 'Oil consumption','Country': datum.country, 'Continent': datum.continent, 'log-value': round(datum.oil_consumption*pow(10,2))/pow(10,2), 'Year': datum.year}"
+                    }
+                    },
+                    "update": {
+                    "fill": {"scale": "color_oil", "field": "oil_consumption"},
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.15}],
+                    "width": {"value": 6},
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
+                    }
+                }
+                }
+            ]
+            },
+
+            {
+            "type": "group",
+            "encode": {
+                "update": {
+                "width": {"value": 300},
+                "height": {"value": 300}
+                }
+            },
+            "marks":[
+                {
+                "type": "rect",
+                "from": {"data": "data_solar"},
+                "encode": {
+                    "enter": {
+                    "x": {"scale": "x", "field": "year"},
+                    "y": {"scale": "y_solar", "field": "country"},
+                    "tooltip": {
+                    "signal": "{title: 'Solar consumption','Country': datum.country, 'Continent': datum.continent, 'log-value': round(datum.solar_consumption*pow(10,2))/pow(10,2), 'Year': datum.year}"
+                    }
+                    },
+                    "update": {
+                    "fill": {"scale": "color_solar", "field": "solar_consumption"},
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.15}],
+                    "width": {"value": 6.2},
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]
+                    }
+                }
+                }
+            ]
+            },
+
+            {
+            "type": "group",
+            "encode": {
+                "update": {
+                "width": {"value": 300},
+                "height": {"value": 300}
+                }
+            },
+            "marks":[
+                {
+                "type": "rect",
+                "from": {"data": "data_wind"},
+                "encode": {
+                    "enter": {
+                    "x": {"scale": "x", "field": "year"},
+                    "y": {"scale": "y_wind", "field": "country"},
+                    "tooltip": {
+                    "signal": "{title: 'Wind consumption','Country': datum.country, 'Continent': datum.continent, 'log-value': round(datum.wind_consumption*pow(10,2))/pow(10,2), 'Year': datum.year}"
+                    }
+                    },
+                    "update": {
+                    "fill": {"scale": "color_wind", "field": "wind_consumption"},
+                    "opacity": [
+                        {"test": "(Country == null && Continent == null && !datapoint_is_activated) | (datum.country == Country && Continent == null) | (datum.continent == Continent) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","value": 1},
+                        {"value": 0.15}],
+                    "width": {"value": 6},
+                    "height": [{"test": "(datum.country == Country && Continent == null) | (datapoint_is_activated && datum.country == activated_datapoint.datum.country)","scale": "y_renew","band":1.7},{"scale": "y_renew", "band": 1.1}]            
+                    }
+                }
+                }
+            ]
+            }    
+        ]       
+      };
+      vegaEmbed('#vis', yourViz);
+    </script>
+
+<div id="vis_small" class="imageSmall"></div>
+    <script type="text/javascript">
+      var yourViz = {
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "width": 300,
+  "height": 300,
+  "padding":0,
+
+  "data": [{
+    "name":"data_world",
+    "url": "https://raw.githubusercontent.com/sybrendeboever/Datavis_data/main/Data_World_stack_2.csv",
+    "format":{
+      "type":"csv",
+      "parse":{"sources":"string","year":"number","consumption":"number","percent":"number"}
+      },
+    "transform": [
+      {
+        "type":"stack",
+        "groupby":["year"],
+        "sort":{"field":"percent"},
+        "field":"percent"
+      }
+    ]
+  }],
+
+  "scales": [
+    {
+      "name": "x_world",
+      "type": "point",
+      "domain": {"data": "data_world", "field": "year","sort":true},
+      "range": "width"
+    },
+    {
+      "name": "y_world",
+      "type": "linear",
+      "range": "height",
+      "nice": true, "zero": true,
+      "domain": [0,100]
+    },
+    {
+      "name":"color_world",
+      "type":"ordinal",
+      "range":["purple", "grey", "DarkOrange", "lightblue", "red","teal","gold","brown"],
+      "domain":{"data":"data_world","field":"sources"}
+    }
+  ],
+  
+
+  "marks":[
+    {
+      "type": "group",
+      "encode": {
+        "update":{
+          "width":{"value":100},
+          "height":{"value":100}
+        }
+      },
+      "from": {
+        "facet": {
+          "name": "series",
+          "data": "data_world",
+          "groupby": "sources"
+        }
+      },
+      "marks": [
+        {
+          "type": "area",
+          "from": {"data": "series"},
+          "encode": {
+            "enter": {
+              "interpolate": {"value": "monotone"},
+              "x": {"scale": "x_world", "field": "year"},
+              "y": {"scale": "y_world", "field": "y0"},
+              "y2": {"scale": "y_world", "field": "y1"},
+              "fill": {"scale": "color_world", "field": "sources"},
+              "tooltip":{
+                "signal": "{title: datum.sources}"
+              }
+            },
+            "update": {
+              "fillOpacity": {"value": 0.5}
+            },
+            "hover": {
+              "fillOpacity": {"value": 1}
+            }
+          }
+        }
+      ]
+    }
+  ]
+      };
+      vegaEmbed('#vis_small', yourViz);
+    </script>
+
+  </body>
+</html>
